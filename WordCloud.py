@@ -3,12 +3,8 @@ import pandas as pd
 import numpy as np
 import nltk
 import os
-nltk.download('punkt')
-nltk.download('wordnet')
-nltk.download('words')
-nltk.download('stopwords')
-from nltk.tokenize import word_tokenize# Passing the string text into word tokenize for breaking the sentences
-import nltk.corpus# sample text for performing tokenization
+from nltk.tokenize import word_tokenize
+import nltk.corpus
 from nltk import word_tokenize
 from nltk.corpus import stopwords
 from tika import parser 
@@ -16,19 +12,19 @@ from os import listdir
 from os.path import isfile, join
 from wordcloud import WordCloud, STOPWORDS
 import matplotlib.pyplot as plt
-words = set(nltk.corpus.words.words())
-from nltk.probability import FreqDist
 from nltk.stem.wordnet import WordNetLemmatizer
 import inflect
 import matplotlib.pyplot as plt
-from gensim import corpora, models
+
+nltk.download('punkt')
+nltk.download('wordnet')
+nltk.download('words')
+nltk.download('stopwords')
+words = set(nltk.corpus.words.words())
 
 
-
-if __name__ == '__main__':
-
-
-    dir = "2012"
+    
+def createWordcloud(dir:str):
 
     ## IMPORT TEXT ##
     files = [f for f in listdir(dir) if isfile(join(dir, f))]
@@ -39,9 +35,6 @@ if __name__ == '__main__':
         if file.endswith('.pdf'):
             raw = parser.from_file("./"+dir+"/"+file)
             text = text + raw['content']
-
-
-
 
 
     ## STOPWORDS ##
@@ -71,6 +64,7 @@ if __name__ == '__main__':
 
 
 
+    ## LEMMATIZER ##
     lemmatizer = WordNetLemmatizer() 
     lemmatized = [lemmatizer.lemmatize(word) for word in words]
 
@@ -81,23 +75,7 @@ if __name__ == '__main__':
 
     for i in lemmatized:
         if i not in additional_stopwords:
-            
-            if engine.singular_noun(i) != False:
-                #singl = engine.singular_noun(i)
                 stemmed_new.append(i)
-            else:
-                stemmed_new.append(i)
-
-    #print(stemmed_new)
-
-
-
-
-    ## EVALUATION ##
-    fdist = FreqDist(stemmed_new)
-    print(fdist.most_common(40))
-    #fdist.plot(50,cumulative=False)
-    #plt.show()
 
 
     comment_words = ''
@@ -117,36 +95,17 @@ if __name__ == '__main__':
     plt.axis("off")
     plt.show()
 
-    # Create Dictionary
-    tokens = [word for word in comment_words.split()]
-    tokens = [tokens]
-    id2word = corpora.Dictionary(tokens)
-    
-
-    # Create Corpus
-    texts = tokens
-
-    # Term Document Frequency
-    corpus = [id2word.doc2bow(text) for text in texts]
-
-
-    #lda_model = gensim.models.ldamodel.LdaModel(corpus=corpus,
-    #                                       id2word=id2word,
-    #                                       num_topics=20, 
-    #                                       random_state=100,
-    #                                       update_every=1,
-    #                                       chunksize=100,
-    #                                       passes=10,
-    #                                       alpha='auto',
-    #                                       per_word_topics=True)
 
 
 
-    # Compute Perplexity
-    #print('\nPerplexity: ', lda_model.log_perplexity(corpus))  # a measure of how good the model is. lower the better.
+# main Function
+if __name__ == "__main__":  
+
+    createWordcloud("2012")
+    createWordcloud("2022")
+    createWordcloud("Literature")
 
 
-    # Visualize the topics
-    #pyLDAvis.enable_notebook()
-    #vis = pyLDAvis.gensim.prepare(lda_model, corpus, id2word)
+
+
 
