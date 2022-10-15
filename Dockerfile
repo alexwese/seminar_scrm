@@ -8,6 +8,7 @@ RUN pip3 install --no-cache-dir nltk
 RUN pip3 install --no-cache-dir tika
 RUN pip3 install --no-cache-dir wordcloud
 RUN pip3 install --no-cache-dir pattern
+RUN pip3 install --no-cache-dir pyLDAvis
 #RUN pip3 install --no-cache-dir PIL
 
 

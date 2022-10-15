@@ -9,10 +9,6 @@ nltk.download('words')
 nltk.download('stopwords')
 from nltk.tokenize import word_tokenize# Passing the string text into word tokenize for breaking the sentences
 import nltk.corpus# sample text for performing tokenization
-from nltk.probability import FreqDist
-from nltk.stem import PorterStemmer
-from nltk.stem import WordNetLemmatizer
-from nltk.stem import LancasterStemmer
 from nltk import word_tokenize
 from nltk.corpus import stopwords
 from tika import parser 
@@ -22,24 +18,26 @@ from wordcloud import WordCloud, STOPWORDS
 import matplotlib.pyplot as plt
 words = set(nltk.corpus.words.words())
 from nltk.probability import FreqDist
-from nltk.stem.snowball import SnowballStemmer
-import string
-#from pattern.text.en import singularize
 from nltk.stem.wordnet import WordNetLemmatizer
 import inflect
 import matplotlib.pyplot as plt
+from gensim import corpora, models
+
 
 
 if __name__ == '__main__':
 
+
+    dir = "2012"
+
     ## IMPORT TEXT ##
-    files = [f for f in listdir('DocumentsSCRM') if isfile(join('DocumentsSCRM', f))]
+    files = [f for f in listdir(dir) if isfile(join(dir, f))]
     print(files)
     text = ""
 
     for file in files:
         if file.endswith('.pdf'):
-            raw = parser.from_file("./DocumentsSCRM/"+file)
+            raw = parser.from_file("./"+dir+"/"+file)
             text = text + raw['content']
 
 
@@ -59,7 +57,10 @@ if __name__ == '__main__':
                             'even','various','tion','consider','related','certain','figure','figures',
                             'use','including','identified','way','required','ing','due','defined','chapter',
                             'theory', 'int ', 'int', 'int j', 'int i', 'show', 'shows', 'ment','j','given',
-                            'author','term','http']
+                            'author','term','http', 'eg','pp', 'ie', 'kleindorfer','saad','vol' ,'f f', 'f', 'fi',
+                            'rm','mentzer','manuj','well','zsidisin','said','ic','el','te','review','st','sy',
+                            'em','finding','k','le', 'st','since','de','initial','wang','k','em','finding',
+                            'k','le','annals','important','increase','provide','considered']
 
     text_lower = word_tokenize(text.lower())
     text_noSW = [str(x) for x in text_lower if str(x) not in a]
@@ -95,8 +96,8 @@ if __name__ == '__main__':
     ## EVALUATION ##
     fdist = FreqDist(stemmed_new)
     print(fdist.most_common(40))
-    fdist.plot(50,cumulative=False)
-    plt.show()
+    #fdist.plot(50,cumulative=False)
+    #plt.show()
 
 
     comment_words = ''
@@ -105,13 +106,47 @@ if __name__ == '__main__':
 
 
     ## WORDCLOUD ##
-    wordcloud = WordCloud(width=1000, 
-                        height=1000,
+    wordcloud = WordCloud(width=2000, 
+                        height=2000,
                         prefer_horizontal=0.5,
+                        max_words= 100,
                         background_color="rgba(255, 255, 255, 0)", 
                         mode="RGBA").generate(comment_words)
 
     plt.imshow(wordcloud)
     plt.axis("off")
     plt.show()
+
+    # Create Dictionary
+    tokens = [word for word in comment_words.split()]
+    tokens = [tokens]
+    id2word = corpora.Dictionary(tokens)
+    
+
+    # Create Corpus
+    texts = tokens
+
+    # Term Document Frequency
+    corpus = [id2word.doc2bow(text) for text in texts]
+
+
+    #lda_model = gensim.models.ldamodel.LdaModel(corpus=corpus,
+    #                                       id2word=id2word,
+    #                                       num_topics=20, 
+    #                                       random_state=100,
+    #                                       update_every=1,
+    #                                       chunksize=100,
+    #                                       passes=10,
+    #                                       alpha='auto',
+    #                                       per_word_topics=True)
+
+
+
+    # Compute Perplexity
+    #print('\nPerplexity: ', lda_model.log_perplexity(corpus))  # a measure of how good the model is. lower the better.
+
+
+    # Visualize the topics
+    #pyLDAvis.enable_notebook()
+    #vis = pyLDAvis.gensim.prepare(lda_model, corpus, id2word)
 
